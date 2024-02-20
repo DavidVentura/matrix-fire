@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+	<style>
+		canvas {
+		  width: 800px;
+		  height: 640px;
+		  image-rendering: pixelated;
+		}
+	</style>
+  </head>
+  <body>
+	<canvas id='canvas'></canvas>
+    <!-- Note the usage of `type=module` here as this is an ES6 module -->
+    <script type="module">
+      import init, { render_fire, update_fire_intensity } from './pkg/wasm.js';
+
+      async function run_wasm() {
+        await init();
+		setInterval(() => {
+			update_fire_intensity();
+			render_fire();
+		}, 100);
+		for(let i = 0; i<15; i++) update_fire_intensity();
+		render_fire();
+      }
+
+      run_wasm();
+    </script>
+  </body>
+</html>
+
