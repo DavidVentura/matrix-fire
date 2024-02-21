@@ -1,9 +1,19 @@
+#[macro_use]
+extern crate lazy_static;
+
+use render::{rand, Fire, PALETTE};
+use std::sync::Mutex;
+
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-// todo 2d matrix, non-static
-static mut PIXELS_IDX: &'static mut [u8] = &mut [0; WIDTH as usize * HEIGHT as usize];
-use crate::{HEIGHT, PALETTE, WIDTH};
+const W: u32 = 20;
+const H: u32 = 16;
+
+lazy_static! {
+    static ref FIRE: Mutex<Fire<'static>> =
+        Mutex::new(Fire::new(W as u8, H as u8, 1, 2.6, rand, &PALETTE));
+}
 
 #[wasm_bindgen(start)]
 pub fn run() -> Result<(), JsValue> {
@@ -20,8 +30,8 @@ fn setup_canvas() {
         .map_err(|_| ())
         .unwrap();
 
-    canvas.set_width(u32::from(WIDTH));
-    canvas.set_height(u32::from(HEIGHT));
+    canvas.set_width(u32::from(W));
+    canvas.set_height(u32::from(H));
 }
 
 #[wasm_bindgen]
@@ -40,24 +50,17 @@ pub fn render_fire() -> Result<(), JsValue> {
         .dyn_into::<web_sys::CanvasRenderingContext2d>()
         .unwrap();
 
-    ctx.clear_rect(0.0, 0.0, WIDTH.into(), HEIGHT.into());
-    for y in 0..HEIGHT {
-        for x in 0..WIDTH {
-            let idx = x + y * WIDTH;
-            let fire_intensity = unsafe { PIXELS_IDX[idx as usize] };
+    ctx.clear_rect(0.0, 0.0, W.into(), H.into());
 
-            let val = format!("#{:06x}", PALETTE[fire_intensity as usize]);
-            // console::log_1(&format!("at x={}, y={}, value is {}", x, y, val).into());
-            ctx.set_fill_style(&JsValue::from(val));
-            ctx.fill_rect(x.into(), y.into(), 1.0, 1.0);
-        }
+    //console::log_1(&format!("Updating intensity").into());
+    FIRE.lock().unwrap().update_fire_intensity();
+    //console::log_1(&format!("Done Updating intensity").into());
+    for c in &mut *FIRE.lock().unwrap() {
+        let val = format!("#{:02x}{:02x}{:02x}", c.c.r, c.c.g, c.c.b);
+        //console::log_1(&format!("at x={}, y={}, value is {}", c.x, c.y, val).into());
+        ctx.set_fill_style(&JsValue::from(val));
+        ctx.fill_rect(c.x.into(), c.y.into(), 1.0, 1.0);
     }
 
     Ok(())
-}
-
-// TODO extract random to u32
-#[wasm_bindgen]
-pub fn update_fire_intensity() {
-    crate::_update_fire_intensity(unsafe { PIXELS_IDX });
 }
