@@ -1,0 +1,52 @@
+%!PS
+
+72 2.54 div dup scale  % Set units to centimeters
+
+/pw 70 def
+/ph 50 def
+<< /PageSize [ pw ph ] >> setpagedevice
+0.02 setlinewidth
+
+/newpath
+0 0 moveto
+
+/bheight 1.0 def  		 % Height of the base, always runs
+/height 1.0 def  		 % Height of the wave (0.5cm)
+/led_block_len 2.0 def
+/mat_thickness 0.3 def
+/led_h_len led_block_len mat_thickness sub def
+/led_block_count 16 def
+
+
+4 1 moveto
+% 90 rotate
+8 {
+2 {
+	0 bheight rlineto % base height
+
+	% 32 leds tall, 16 iterations
+	led_block_count 1 sub {
+		0 height rlineto  			% up
+		led_h_len 0 rlineto   		% right (2x leds)
+		0 height neg rlineto  		% down
+		mat_thickness 0 rlineto   	% right (interlock)
+	} repeat
+
+	% last led
+	0 height rlineto
+	led_h_len 0 rlineto
+
+	0 height neg rlineto
+	0 bheight neg rlineto
+
+	led_block_len led_block_count 1 sub mul led_h_len add neg 0 rlineto
+
+	32 0 rmoveto
+} repeat
+	-64 0 rmoveto
+	0 2.5 rmoveto
+} repeat
+
+stroke
+showpage
+
