@@ -1,9 +1,8 @@
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_sys::*;
 use num_traits::NumCast;
-use render::Fire;
-//use smart_leds::hsv::{hsv2rgb, Hsv};
-use smart_leds::RGB8;
+use render::{pixmap, Fire, PALETTE};
+use smart_leds::{brightness, gamma, RGB8};
 use smart_leds_trait::SmartLedsWrite;
 use std::thread::sleep;
 use std::time::Duration;
@@ -26,70 +25,52 @@ fn main() -> ! {
 
     println!("Start NeoPixel rainbow!");
 
-    let mut f = Fire::new(32, 8, 1, 1.6, rand, PALETTE);
+    let mut f = Fire::new(20, 16, 2.6, rand, &PALETTE, true);
 
-    let pix: &mut [u8] = &mut [0; WIDTH as usize * HEIGHT as usize];
     let black = RGB8 { r: 0, g: 0, b: 0 };
-    let mut i = 0;
+    let mut _i: u16 = 0;
+
+    //let data: Vec<u16> = (0..20).collect();
     loop {
-        i = (i + 1) % (WIDTH * 8);
-        let mut pix_bottom: Vec<RGB8> = (0..(32 * HEIGHT)).map(|_| black).collect();
-        _update_fire_intensity(pix, rand);
+        f.update_fire_intensity();
+        let mut pix_bottom: Vec<RGB8> = (0..(1280)).map(|_| black).collect();
+
         /*
-        for x in 0..WIDTH {
-            for y in 0..8 {
-                {
-                    //for _ in 0..2 {
-                    // 20
-                    let idx = y * WIDTH + x;
-                    let palete_idx = pix[idx as usize];
-                    let color = PALETTE[palete_idx as usize];
-                    let r = RGB8 {
-                        r: 128 / (y + 1) as u8, //((color & 0xff0000) >> 16) as u8 >> 2,
-                        g: y as u8 * 8,         //((color & 0x00ff00) >> 8) as u8 >> 2,
-                        b: 0,                   //((color & 0x0000ff) >> 0) as u8 >> 2,
-                    };
-                    //pix_bottom.push(r);
-                    if i < y * WIDTH + x {
-                        pix_bottom.push(r); //[idx as usize] = r;
-                                            //pix_bottom.push(r); //[idx as usize] = r;
-                    } else {
-                        pix_bottom.push(black);
-                    }
-                }
-            }
-        }
-        */
-        // these screens zig-zag:
-        // | 00 01 02 03 04 |
-        // | 09 08 07 06 05 |
-        // | 10 11 12 13 14 |
-        //for y in 0..8 {
+        i = (i + 1) % (20);
         {
-            for x in 0..32 {
-                // 20
-                let r = RGB8 {
-                    r: 64 / (0 + 1) as u8,
-                    g: x as u8 * 4,
-                    b: 0,
-                };
-                pix_bottom[(0 * 32 + x) as usize] = r;
-            }
+            let r = RGB8 {
+                r: 64 as u8,
+                g: (i * 4) as u8,
+                b: 0,
+            };
+            //pix_bottom[pixmap(0, data[i as usize]) as usize] = r;
+            pix_bottom[pixmap(data[i as usize] * 2, 0) as usize] = r;
         }
-        //for y in 0..8 {
-        //pix_bottom.clear();
-        //pix_bottom.push(RGB8 { r: 128, g: 0, b: 0 });
-        //pix_bottom.push(RGB8 { r: 0, g: 128, b: 0 });
-        //pix_bottom.push(RGB8 { r: 0, g: 0, b: 128 });
-        /*let pixels = std::iter::repeat(hsv2rgb(Hsv {
-            hue,
-            sat: 255,
-            val: 1,
-        }))
-        .take(25);
         */
-        ws2812.write(pix_bottom.into_iter()).unwrap();
+        for p in f.into_iter() {
+            pix_bottom[pixmap(p.x as u16 * 2 + 0, p.y as u16 * 2 + 0) as usize] = p.c;
+            pix_bottom[pixmap(p.x as u16 * 2 + 0, p.y as u16 * 2 + 1) as usize] = p.c;
+            pix_bottom[pixmap(p.x as u16 * 2 + 1, p.y as u16 * 2 + 0) as usize] = p.c;
+            pix_bottom[pixmap(p.x as u16 * 2 + 1, p.y as u16 * 2 + 1) as usize] = p.c;
+        }
+        ws2812
+            //.write(gamma(pix_bottom.into_iter()))
+            .write(brightness(gamma(pix_bottom.into_iter()), 50))
+            .unwrap();
 
         sleep(Duration::from_millis(100));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert!(upscale(0) == (0, 1, 14, 15));
+        assert!(upscale(1) == (2, 3, 12, 13));
+        assert!(upscale(3) == (6, 7, 8, 9));
+        assert!(upscale(4) == (16, 17, 30, 31));
     }
 }

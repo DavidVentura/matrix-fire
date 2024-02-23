@@ -1,4 +1,62 @@
 use rgb::RGB8;
+use smart_leds::hsv::Hsv;
+pub static PALETTE_HSV: [Hsv; 11] = [
+    Hsv {
+        hue: 00,
+        sat: 00,
+        val: 000,
+    },
+    Hsv {
+        hue: 25,
+        sat: 67,
+        val: 019,
+    },
+    Hsv {
+        hue: 26,
+        sat: 72,
+        val: 034,
+    },
+    Hsv {
+        hue: 24,
+        sat: 75,
+        val: 046,
+    },
+    Hsv {
+        hue: 21,
+        sat: 99,
+        val: 082,
+    },
+    Hsv {
+        hue: 39,
+        sat: 88,
+        val: 087,
+    },
+    Hsv {
+        hue: 34,
+        sat: 91,
+        val: 100,
+    },
+    Hsv {
+        hue: 41,
+        sat: 91,
+        val: 099,
+    },
+    Hsv {
+        hue: 47,
+        sat: 90,
+        val: 100,
+    },
+    Hsv {
+        hue: 56,
+        sat: 91,
+        val: 100,
+    },
+    Hsv {
+        hue: 62,
+        sat: 71,
+        val: 100,
+    },
+];
 
 pub static PALETTE: [RGB8; 11] = [
     RGB8 {
@@ -58,37 +116,50 @@ pub static PALETTE: [RGB8; 11] = [
     },
 ];
 
-pub struct Fire<'a> {
-    width: u8,
-    height: u8,
-    upscale_factor: u8,
+pub struct Fire<'a, T: Copy> {
+    pub(crate) width: u8,
+    pub(crate) height: u8,
     decay_factor: f32,
     rand_fn: fn() -> f32,
-    palette: &'a [RGB8],
-    intensity_data: Vec<Vec<u8>>,
+    pub(crate) palette: &'a [T],
+    pub(crate) intensity_data: Vec<Vec<u8>>,
+    pub(crate) flip_odd_x_order: bool,
+}
+pub struct FireIterator<'a, T: Copy> {
+    f: &'a Fire<'a, T>,
     curr_x: usize,
     curr_y: usize,
 }
 
 #[derive(Debug)]
-pub struct ColorCoord {
-    pub c: RGB8,
+pub struct ColorCoord<T: Copy> {
+    pub c: T,
     pub x: u8,
     pub y: u8,
 }
 
-impl<'a> Iterator for &mut Fire<'a> {
-    type Item = ColorCoord;
+/*
+impl<T, A> Into<A> for ColorCoord<T> {
+    fn into(self) -> A {
+        self.c
+    }
+}
+*/
+
+impl<'a, T: Copy> Iterator for FireIterator<'a, T> {
+    type Item = ColorCoord<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO flippy X
-        let ret = if self.curr_y == (self.height as usize) {
-            self.curr_y = 0;
-            self.curr_x = 0;
+        let ret = if self.curr_y == (self.f.height as usize) {
             None
         } else {
-            let firstbit = &self.intensity_data[self.curr_x];
-            let c = self.palette[firstbit[self.curr_y] as usize]; // self.curr_y
+            let x = if self.f.flip_odd_x_order && (self.curr_y % 2) == 1 {
+                self.f.width as usize - self.curr_x - 1
+            } else {
+                self.curr_x
+            };
+            let firstbit = &self.f.intensity_data[x];
+            let c = self.f.palette[firstbit[self.curr_y] as usize];
             Some(ColorCoord {
                 c,
                 x: self.curr_x as u8,
@@ -97,7 +168,7 @@ impl<'a> Iterator for &mut Fire<'a> {
         };
 
         self.curr_x += 1;
-        if self.curr_x == self.width as usize {
+        if self.curr_x == self.f.width as usize {
             self.curr_y += 1;
             self.curr_x = 0;
         }
@@ -105,25 +176,35 @@ impl<'a> Iterator for &mut Fire<'a> {
     }
 }
 
-impl<'a> Fire<'a> {
+impl<'a, T: Copy> IntoIterator for &'a Fire<'a, T> {
+    type Item = ColorCoord<T>;
+    type IntoIter = FireIterator<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        FireIterator {
+            f: &self,
+            curr_x: 0,
+            curr_y: 0,
+        }
+    }
+}
+impl<'a, T: Copy> Fire<'a, T> {
     pub fn new(
         width: u8,
         height: u8,
-        upscale_factor: u8,
         decay_factor: f32,
         rand_fn: fn() -> f32,
-        palette: &'a [RGB8],
-    ) -> Fire<'a> {
+        palette: &'a [T],
+        flip_odd_x_order: bool,
+    ) -> Fire<'a, T> {
         Fire {
             width,
             height,
-            upscale_factor,
             decay_factor,
             rand_fn,
             palette,
             intensity_data: vec![vec![0; height as usize]; width as usize],
-            curr_x: 0,
-            curr_y: 0,
+            flip_odd_x_order,
         }
     }
 
@@ -184,6 +265,35 @@ pub fn rand() -> f32 {
     rand::random::<f32>()
 }
 
+const PANEL_W: u16 = 8;
+const PANEL_H: u16 = 32;
+// these screens zig-zag:
+// | 00 01 02 03 04 |
+// | 09 08 07 06 05 |
+// | 10 11 12 13 14 |
+pub fn pixmap(x: u16, y: u16) -> u16 {
+    let panel = x / PANEL_W;
+    let x_in_panel = x % PANEL_W;
+    let is_updown = (panel % 2) == 0;
+
+    let outrow = if is_updown { y } else { PANEL_H - y - 1 };
+    let outcol = if is_updown {
+        if (y % 2) == 0 {
+            PANEL_W - x_in_panel - 1
+        } else {
+            x_in_panel
+        }
+    } else {
+        if (y % 2) == 0 {
+            PANEL_W - x_in_panel - 1
+        } else {
+            x_in_panel
+        }
+    };
+
+    (panel * PANEL_W * PANEL_H) + outrow * PANEL_W + outcol
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -191,14 +301,44 @@ mod tests {
     #[test]
     fn it_works() {
         // rand::random::<f32>()
-        let mut f = Fire::new(10, 8, 1, 1.6, rand, &PALETTE);
+        let mut f = Fire::new(10, 8, 1, 1.6, rand, &PALETTE, false);
         // for each call to update, there should be a new line of fire on top
         // there should never be any values in x=0 or x=max
         f.update_fire_intensity();
         f.update_fire_intensity();
         f.update_fire_intensity();
-        for c in &mut f {
-            println!("{:?}", c);
+        for c in f.into_iter() {
+            //println!("{:?}", c);
         }
+    }
+    #[test]
+    fn map_pixmap_xy() {
+        // first panel
+        assert_eq!(pixmap(0, 0), 7);
+        assert_eq!(pixmap(1, 0), 6);
+        assert_eq!(pixmap(2, 0), 5);
+        assert_eq!(pixmap(3, 0), 4);
+        assert_eq!(pixmap(7, 0), 0);
+        assert_eq!(pixmap(7, 1), 15);
+
+        // second panel
+        assert_eq!(pixmap(8, 0), 511);
+        assert_eq!(pixmap(15, 0), 504);
+
+        // third panel
+        assert_eq!(pixmap(16, 0), 519);
+
+        // y=1
+        // first panel
+        assert_eq!(pixmap(0, 1), 8);
+        assert_eq!(pixmap(1, 1), 9);
+        assert_eq!(pixmap(2, 1), 10);
+        assert_eq!(pixmap(3, 1), 11);
+        assert_eq!(pixmap(7, 1), 15);
+
+        assert_eq!(pixmap(8, 1), 496);
+        assert_eq!(pixmap(15, 1), 503);
+
+        assert_eq!(pixmap(16, 1), 520);
     }
 }

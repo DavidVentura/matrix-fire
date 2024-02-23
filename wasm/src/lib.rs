@@ -12,7 +12,7 @@ const H: u32 = 16;
 
 lazy_static! {
     static ref FIRE: Mutex<Fire<'static>> =
-        Mutex::new(Fire::new(W as u8, H as u8, 1, 2.6, rand, &PALETTE));
+        Mutex::new(Fire::new(W as u8, H as u8, 1, 2.6, rand, &PALETTE, true));
 }
 
 #[wasm_bindgen(start)]
@@ -55,7 +55,7 @@ pub fn render_fire() -> Result<(), JsValue> {
     //console::log_1(&format!("Updating intensity").into());
     FIRE.lock().unwrap().update_fire_intensity();
     //console::log_1(&format!("Done Updating intensity").into());
-    for c in &mut *FIRE.lock().unwrap() {
+    for c in FIRE.lock().unwrap().into_iter() {
         let val = format!("#{:02x}{:02x}{:02x}", c.c.r, c.c.g, c.c.b);
         //console::log_1(&format!("at x={}, y={}, value is {}", c.x, c.y, val).into());
         ctx.set_fill_style(&JsValue::from(val));
