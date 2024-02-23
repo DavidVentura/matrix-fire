@@ -1,6 +1,8 @@
 # Fire
 
-Displays a pixelated fire in a 40x32 WS2812 matrix. The matrix is scaled down to 20x16 and runs off an ESP32.
+Displays a pixelated fire in a 40x32 (1280 pixels) WS2812 matrix. The matrix is scaled down to 20x16 and runs off an ESP32.
+
+The matrix is limited to 25fps due to LED count.
 
 There's a basic canvas renderer using WASM.
 
