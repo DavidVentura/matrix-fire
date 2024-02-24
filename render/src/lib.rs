@@ -123,8 +123,8 @@ pub struct Fire<'a, T: Copy> {
     rand_fn: fn() -> f32,
     pub(crate) palette: &'a [T],
     pub(crate) intensity_data: Vec<Vec<u8>>,
-    pub(crate) flip_odd_x_order: bool,
 }
+
 pub struct FireIterator<'a, T: Copy> {
     f: &'a Fire<'a, T>,
     curr_x: usize,
@@ -153,12 +153,7 @@ impl<'a, T: Copy> Iterator for FireIterator<'a, T> {
         let ret = if self.curr_y == (self.f.height as usize) {
             None
         } else {
-            let x = if self.f.flip_odd_x_order && (self.curr_y % 2) == 1 {
-                self.f.width as usize - self.curr_x - 1
-            } else {
-                self.curr_x
-            };
-            let firstbit = &self.f.intensity_data[x];
+            let firstbit = &self.f.intensity_data[self.curr_x];
             let c = self.f.palette[firstbit[self.curr_y] as usize];
             Some(ColorCoord {
                 c,
@@ -195,7 +190,6 @@ impl<'a, T: Copy> Fire<'a, T> {
         decay_factor: f32,
         rand_fn: fn() -> f32,
         palette: &'a [T],
-        flip_odd_x_order: bool,
     ) -> Fire<'a, T> {
         Fire {
             width,
@@ -204,10 +198,12 @@ impl<'a, T: Copy> Fire<'a, T> {
             rand_fn,
             palette,
             intensity_data: vec![vec![0; height as usize]; width as usize],
-            flip_odd_x_order,
         }
     }
 
+    pub fn set_palette(&mut self, palette: &'a [T]) {
+        self.palette = palette;
+    }
     fn update_fire_pixel_intensity(&mut self, x: u8, y: u8) {
         let decay = ((self.rand_fn)() * self.decay_factor).floor();
         let below_pixel_fire_intensity: i8;
@@ -300,8 +296,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        // rand::random::<f32>()
-        let mut f = Fire::new(10, 8, 1, 1.6, rand, &PALETTE, false);
+        let mut f = Fire::new(10, 8, 1.6, rand, &PALETTE);
         // for each call to update, there should be a new line of fire on top
         // there should never be any values in x=0 or x=max
         f.update_fire_intensity();

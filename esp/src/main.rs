@@ -1,4 +1,5 @@
 use esp_idf_hal::peripherals::Peripherals;
+use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -18,16 +19,29 @@ fn main() -> ! {
     let modem = peripherals.modem;
     let led_pin = peripherals.pins.gpio27;
     let channel = peripherals.rmt.channel0;
-    let _w = wifi::configure(SSID, PASS, modem).expect("Could not configure wifi");
-    println!("Wifi configured");
-    let _h = http::server().expect("Could not start http server");
-    println!("HTTP server up");
-
-    let mut m = neopixels::Matrix::new(channel, led_pin);
+    let m = neopixels::Matrix::new(channel, led_pin);
+    let guard1 = Arc::new(Mutex::new(m));
+    let guard2 = guard1.clone();
     println!("Start matrix");
 
+    std::thread::spawn(move || {
+        let _w = wifi::configure(SSID, PASS, modem).expect("Could not configure wifi");
+        println!("Wifi configured");
+
+        let _h = http::server(move |val: u8| {
+            guard2.lock().unwrap().set_brightness(val);
+            println!("Set brightness to {}", val);
+        })
+        .expect("Could not start http server");
+        println!("HTTP server up");
+        loop {
+            sleep(Duration::from_secs(1));
+        }
+    });
+
+    println!("Ticking");
     loop {
-        m.tick();
+        guard1.lock().unwrap().tick();
         sleep(Duration::from_millis(100));
     }
 }

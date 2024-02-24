@@ -4,7 +4,10 @@ members = ["esp", "render", "wasm"]
 resolver = "2"
 
 [profile.release]
-opt-level = "s"
+opt-level = "z"
+#strip = true
+lto = true
+#panic = "abort"
 
 [profile.dev]
 debug = true    # Symbols are nice and they don't increase the size on Flash

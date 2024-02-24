@@ -18,31 +18,31 @@
 /led_block_count 16 def
 
 
-4 1 moveto
+0 0 moveto
 % 90 rotate
-8 {
-2 {
-	0 bheight rlineto % base height
+1 {
+	1 {
+		0 bheight rlineto % base height
 
-	% 32 leds tall, 16 iterations
-	led_block_count 1 sub {
-		0 height rlineto  			% up
-		led_h_len 0 rlineto   		% right (2x leds)
-		0 height neg rlineto  		% down
-		mat_thickness 0 rlineto   	% right (interlock)
+		% 32 leds tall, 16 iterations
+		led_block_count 1 sub {
+			0 height rlineto  			% up
+			led_h_len 0 rlineto   		% right (2x leds)
+			0 height neg rlineto  		% down
+			mat_thickness 0 rlineto   	% right (interlock)
+		} repeat
+
+		% last led
+		0 height rlineto
+		led_h_len 0 rlineto
+
+		0 height neg rlineto
+		0 bheight neg rlineto
+
+		led_block_len led_block_count 1 sub mul led_h_len add neg 0 rlineto
+
+		32 0 rmoveto
 	} repeat
-
-	% last led
-	0 height rlineto
-	led_h_len 0 rlineto
-
-	0 height neg rlineto
-	0 bheight neg rlineto
-
-	led_block_len led_block_count 1 sub mul led_h_len add neg 0 rlineto
-
-	32 0 rmoveto
-} repeat
 	-64 0 rmoveto
 	0 2.5 rmoveto
 } repeat
