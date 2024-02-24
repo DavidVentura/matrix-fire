@@ -21,6 +21,7 @@ esp-idf-hal = "0.42"
 esp-idf-sys = ">=0.33"
 smart-leds = "0.4.0"
 smart-leds-trait = "0.2.0"
+esp-idf-svc = "*"
 ws2812-esp32-rmt-driver = { version = "0.7.1", features = ["smart-leds-trait", "embedded-graphics-core"] }
 
 [build-dependencies]
