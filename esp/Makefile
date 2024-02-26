@@ -1,5 +1,7 @@
-.PHONY: flash flashm
+.PHONY: flash flashm build
 flash:
-	cargo espflash flash -p /dev/ttyUSB0 -f 80mhz -b 921600
+	ESP_IDF_SYS_ROOT_CRATE=esp cargo espflash flash -p /dev/ttyUSB0 -f 80mhz -b 921600
 flashm:
-	cargo espflash flash --release -p /dev/ttyUSB0 -f 80mhz -b 921600 -M
+	ESP_IDF_SYS_ROOT_CRATE=esp cargo espflash flash --release -p /dev/ttyUSB0 -f 80mhz -b 921600 -M
+build:
+	ESP_IDF_SYS_ROOT_CRATE=esp cargo build
