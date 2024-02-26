@@ -14,3 +14,13 @@ https://github.com/DavidVentura/matrix-fire/assets/3650670/b9f5ad1b-9b1f-4d2b-a1
 ## Parts
 
 - 5x [32x8 WS2812B led matrix](https://www.aliexpress.com/item/1005001265647648.html)
+- Some laser-cut pieces of cardboard to make baffles. Files are at `parts/`.
+	- I used a 50x70cm, 3mm thick piece of cardboard.
+- ESP32
+- 5v power supply appropriate for your chosen brigthness; I bought a 10A supply.
+
+
+## Other
+
+I made the baffles 2.5cm deep, which looks nice, but may be too deep, so the brightness has to be increased (to ~100 in my case).
+Probably 1.5cm would be better, but I've not tested it.
