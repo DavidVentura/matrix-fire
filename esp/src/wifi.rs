@@ -13,6 +13,8 @@ pub(crate) fn configure(
 ) -> Result<BlockingWifi<EspWifi<'static>>, EspError> {
     // Configure Wifi
     let sysloop = EspSystemEventLoop::take()?;
+    // The nvs stores the RF calibration data, which allows
+    // for faster connection
     let nvs = EspDefaultNvsPartition::take()?;
 
     let mut wifi = BlockingWifi::wrap(EspWifi::new(modem, sysloop.clone(), Some(nvs))?, sysloop)?;
@@ -23,10 +25,7 @@ pub(crate) fn configure(
         ..Default::default()
     }))?;
 
-    // Start Wifi
     wifi.start()?;
-
-    // Connect Wifi
     wifi.connect()?;
 
     // Wait until the network interface is up

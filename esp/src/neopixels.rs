@@ -10,9 +10,12 @@ use ws2812_esp32_rmt_driver::Ws2812Esp32Rmt;
 
 pub(crate) struct Matrix<'a> {
     ws2812: Ws2812Esp32Rmt<'a>,
+    //tx: TxRmtDriver<'a>,
     f: Fire<'a, RGB8>,
     pix: Vec<RGB8>,
     brightness: u8,
+    delta_brightness: i8,
+    brightness_change: i8,
 }
 
 impl<'a> Matrix<'a> {
@@ -30,7 +33,9 @@ impl<'a> Matrix<'a> {
             ws2812,
             f,
             pix: pix_bottom,
-            brightness: 255,
+            brightness: 100,
+            delta_brightness: 0,
+            brightness_change: 1,
         }
     }
     pub(crate) fn tick(&mut self) {
@@ -43,15 +48,25 @@ impl<'a> Matrix<'a> {
             self.pix[pixmap(p.x as u16 * 2 + 1, p.y as u16 * 2 + 0) as usize] = p.c;
             self.pix[pixmap(p.x as u16 * 2 + 1, p.y as u16 * 2 + 1) as usize] = p.c;
         }
+
         let iter = (&self.pix).into_iter().copied();
-        self.ws2812
-            .write(brightness(gamma(iter), self.brightness))
-            .unwrap();
+        let db = self.delta_brightness / 10;
+        let b = (self.brightness as i16 + (db as i16)) as u8;
+        let adj: Vec<RGB8> = brightness(gamma(iter), b).collect();
+        self.ws2812.write(adj.into_iter()).unwrap();
+        self.delta_brightness = self.delta_brightness + self.brightness_change;
+        if self.brightness_change == 1 && self.delta_brightness == 100 {
+            self.brightness_change = -1;
+        }
+        if self.brightness_change == -1 && self.delta_brightness == 0 {
+            self.brightness_change = 1;
+        }
     }
     pub(crate) fn set_brightness(&mut self, brightness: u8) {
         self.brightness = brightness;
     }
 }
+
 fn rand() -> f32 {
     let v: u32 = unsafe { esp_random() };
     <f32 as NumCast>::from(v).unwrap() / <f32 as NumCast>::from(u32::MAX).unwrap()

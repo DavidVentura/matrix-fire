@@ -308,6 +308,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 
 [[package]]
+name = "cty"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
+
+[[package]]
 name = "cvt"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -403,7 +409,7 @@ dependencies = [
  "cfg-if",
  "critical-section",
  "futures-util",
- "heapless",
+ "heapless 0.7.17",
 ]
 
 [[package]]
@@ -477,11 +483,30 @@ dependencies = [
  "embedded-io",
  "embedded-io-async",
  "enumset",
- "heapless",
+ "heapless 0.7.17",
  "no-std-net",
  "num_enum",
  "serde",
  "strum 0.25.0",
+]
+
+[[package]]
+name = "embedded-svc"
+version = "0.27.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac6f87e7654f28018340aa55f933803017aefabaa5417820a3b2f808033c7bbc"
+dependencies = [
+ "defmt",
+ "embedded-io",
+ "embedded-io-async",
+ "enumset",
+ "heapless 0.8.0",
+ "log",
+ "no-std-net",
+ "num_enum",
+ "serde",
+ "strum 0.25.0",
+ "strum_macros 0.25.3",
 ]
 
 [[package]]
@@ -515,6 +540,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "226c0da7462c13fb57e5cc9e0dc8f0635e7d27f276a3a7fd30054647f669007d"
 dependencies = [
  "enumset_derive",
+ "serde",
 ]
 
 [[package]]
@@ -569,8 +595,8 @@ dependencies = [
  "embedded-io",
  "embuild",
  "enumset",
- "esp-idf-sys",
- "heapless",
+ "esp-idf-sys 0.33.7",
+ "heapless 0.7.17",
  "log",
  "nb 1.1.0",
  "num_enum",
@@ -583,15 +609,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e2bd20db9af5a3b96823b38f39e6aafcc1bcfa3e5e7d9a0777101f1f301eba5"
 dependencies = [
  "embassy-futures",
- "embedded-svc",
+ "embedded-svc 0.26.4",
  "embuild",
  "enumset",
  "esp-idf-hal",
- "heapless",
+ "heapless 0.7.17",
  "log",
  "num_enum",
  "uncased",
 ]
+
+[[package]]
+name = "esp-idf-sys"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6b824a1aff03a105d67b11119595dedbbb4943471dd7e47131f417bb2484eae"
 
 [[package]]
 name = "esp-idf-sys"
@@ -611,6 +643,17 @@ dependencies = [
  "serde",
  "strum 0.24.1",
  "which",
+]
+
+[[package]]
+name = "esp_idf_logger"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2418d4f48c075148cfd95e8c0d32165c9673037b10f47714c5ca8bcdb00ee17"
+dependencies = [
+ "cty",
+ "esp-idf-sys 0.1.2",
+ "log",
 ]
 
 [[package]]
@@ -728,6 +771,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hash32"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "47d60b12902ba28e2730cd37e95b8c9223af2808df9e902d4df49588d1470606"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -740,9 +792,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdc6457c0eb62c71aac4bc17216026d8410337c4126773b9c5daba343f17964f"
 dependencies = [
  "atomic-polyfill",
- "hash32",
+ "hash32 0.2.1",
  "rustc_version",
  "spin",
+ "stable_deref_trait",
+]
+
+[[package]]
+name = "heapless"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0bfb9eb618601c89945a70e254898da93b13be0388091d42117462b265bb3fad"
+dependencies = [
+ "hash32 0.3.1",
+ "serde",
  "stable_deref_trait",
 ]
 
@@ -885,12 +948,18 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 name = "matrix-fire"
 version = "0.1.0"
 dependencies = [
+ "embedded-svc 0.27.1",
  "embuild",
  "esp-idf-hal",
  "esp-idf-svc",
- "esp-idf-sys",
+ "esp-idf-sys 0.33.7",
+ "esp_idf_logger",
+ "log",
  "num-traits",
+ "once_cell",
  "render",
+ "serde",
+ "serde_json",
  "smart-leds",
  "smart-leds-trait 0.2.1",
  "ws2812-esp32-rmt-driver",
@@ -939,6 +1008,9 @@ name = "no-std-net"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1bcece43b12349917e096cddfa66107277f123e6c96a5aea78711dc601a47152"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "nom"
@@ -1823,7 +1895,7 @@ dependencies = [
  "embedded-graphics-core",
  "embuild",
  "esp-idf-hal",
- "esp-idf-sys",
+ "esp-idf-sys 0.33.7",
  "smart-leds-trait 0.2.1",
  "thiserror",
 ]
