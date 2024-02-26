@@ -1,62 +1,4 @@
 use rgb::RGB8;
-use smart_leds::hsv::Hsv;
-pub static PALETTE_HSV: [Hsv; 11] = [
-    Hsv {
-        hue: 00,
-        sat: 00,
-        val: 000,
-    },
-    Hsv {
-        hue: 25,
-        sat: 67,
-        val: 019,
-    },
-    Hsv {
-        hue: 26,
-        sat: 72,
-        val: 034,
-    },
-    Hsv {
-        hue: 24,
-        sat: 75,
-        val: 046,
-    },
-    Hsv {
-        hue: 21,
-        sat: 99,
-        val: 082,
-    },
-    Hsv {
-        hue: 39,
-        sat: 88,
-        val: 087,
-    },
-    Hsv {
-        hue: 34,
-        sat: 91,
-        val: 100,
-    },
-    Hsv {
-        hue: 41,
-        sat: 91,
-        val: 099,
-    },
-    Hsv {
-        hue: 47,
-        sat: 90,
-        val: 100,
-    },
-    Hsv {
-        hue: 56,
-        sat: 91,
-        val: 100,
-    },
-    Hsv {
-        hue: 62,
-        sat: 71,
-        val: 100,
-    },
-];
 
 pub static PALETTE: [RGB8; 11] = [
     RGB8 {
@@ -87,32 +29,32 @@ pub static PALETTE: [RGB8; 11] = [
     RGB8 {
         r: 0xDE,
         g: 0x9A,
-        b: 0x1A,
+        b: 0x0A,
     },
     RGB8 {
         r: 0xFF,
         g: 0x9C,
-        b: 0x17,
+        b: 0x07,
     },
     RGB8 {
         r: 0xFE,
         g: 0xB4,
-        b: 0x17,
+        b: 0x07,
     },
     RGB8 {
         r: 0xFF,
         g: 0xCF,
-        b: 0x19,
+        b: 0x09,
     },
     RGB8 {
         r: 0xFE,
         g: 0xED,
-        b: 0x18,
+        b: 0x08,
     },
     RGB8 {
         r: 0xFA,
         g: 0xFF,
-        b: 0x4A,
+        b: 0x0A,
     },
 ];
 

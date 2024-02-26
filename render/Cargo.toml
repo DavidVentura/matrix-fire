@@ -11,4 +11,3 @@ rand = "0.8.5"
 
 [dependencies]
 rgb = "0.8.37"
-smart-leds = "0.4.0"
