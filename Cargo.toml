@@ -5,7 +5,7 @@ resolver = "2"
 
 [profile.release]
 opt-level = "z"
-strip = true
+strip = false
 lto = true
 #panic = "abort"
 
