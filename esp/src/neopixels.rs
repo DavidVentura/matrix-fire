@@ -33,7 +33,7 @@ impl<'a> Matrix<'a> {
             ws2812,
             f,
             pix: pix_bottom,
-            brightness: 100,
+            brightness: 90,
             delta_brightness: 0,
             brightness_change: 1,
         }
@@ -63,7 +63,8 @@ impl<'a> Matrix<'a> {
         }
     }
     pub(crate) fn set_brightness(&mut self, brightness: u8) {
-        self.brightness = brightness;
+        self.brightness = std::cmp::min(brightness, 90);
+        println!("Set brightness to {}", self.brightness);
     }
 }
 
