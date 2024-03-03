@@ -1,7 +1,7 @@
 use esp_idf_hal::modem::Modem;
 use esp_idf_svc::eventloop::EspSystemEventLoop;
 use esp_idf_sys::esp;
-use esp_idf_sys::esp_wifi_set_ps;
+use esp_idf_sys::{esp_wifi_set_ps, wifi_ps_type_t_WIFI_PS_NONE};
 
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
 use esp_idf_svc::wifi::{BlockingWifi, EspWifi};
@@ -33,7 +33,7 @@ pub(crate) fn configure(
     // Wait until the network interface is up
     wifi.wait_netif_up()?;
 
-    esp!(unsafe { esp_wifi_set_ps(0) })?;
+    esp!(unsafe { esp_wifi_set_ps(wifi_ps_type_t_WIFI_PS_NONE) })?;
 
     let ip_info = wifi.wifi().sta_netif().get_ip_info()?;
     println!("IP info: {:?}", ip_info);
