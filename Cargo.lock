@@ -956,7 +956,6 @@ dependencies = [
  "esp_idf_logger",
  "log",
  "num-traits",
- "once_cell",
  "render",
  "serde",
  "serde_json",
