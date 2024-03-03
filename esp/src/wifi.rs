@@ -28,12 +28,12 @@ pub(crate) fn configure(
     }))?;
 
     wifi.start()?;
+    // disable radio power saving; makes connectivity generally faster
+    esp!(unsafe { esp_wifi_set_ps(wifi_ps_type_t_WIFI_PS_NONE) })?;
     wifi.connect()?;
 
     // Wait until the network interface is up
     wifi.wait_netif_up()?;
-
-    esp!(unsafe { esp_wifi_set_ps(wifi_ps_type_t_WIFI_PS_NONE) })?;
 
     let ip_info = wifi.wifi().sta_netif().get_ip_info()?;
     println!("IP info: {:?}", ip_info);
