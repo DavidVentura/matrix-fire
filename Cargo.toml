@@ -5,10 +5,11 @@ resolver = "2"
 
 [profile.release]
 opt-level = "z"
-#strip = true
+strip = true
 lto = true
 #panic = "abort"
 
 [profile.dev]
 debug = true    # Symbols are nice and they don't increase the size on Flash
 opt-level = "z"
+strip = false
