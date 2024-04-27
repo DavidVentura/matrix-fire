@@ -10,6 +10,10 @@ Looks something like this:
 
 https://github.com/DavidVentura/matrix-fire/assets/3650670/b9f5ad1b-9b1f-4d2b-a132-f6941ccc0aff
 
+And something like this (though it looks a lot nicer in real life)
+
+https://github.com/DavidVentura/matrix-fire/assets/3650670/81689af4-8160-4d21-9c5c-98d44354a97a
+
 
 ## Parts
 
