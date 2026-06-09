@@ -22,8 +22,8 @@ pub(crate) fn configure(
     let mut wifi = BlockingWifi::wrap(EspWifi::new(modem, sysloop.clone(), Some(nvs))?, sysloop)?;
 
     wifi.set_configuration(&Configuration::Client(ClientConfiguration {
-        ssid: ssid.into(),
-        password: pass.into(),
+        ssid: heapless::String::try_from(ssid).unwrap(),
+        password: heapless::String::try_from(pass).unwrap(),
         ..Default::default()
     }))?;
 

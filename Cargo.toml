@@ -13,3 +13,7 @@ lto = true
 debug = true    # Symbols are nice and they don't increase the size on Flash
 opt-level = "z"
 strip = false
+
+#[patch.crates-io]
+#esp-idf-hal = { path = "../esp-idf-hal" }
+#esp-idf-svc = { path = "../esp-idf-svc" }

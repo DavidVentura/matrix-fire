@@ -4,13 +4,12 @@ use esp_idf_hal::rmt::RmtChannel;
 use esp_idf_sys::*;
 use num_traits::NumCast;
 use render::{pixmap, Fire, PALETTE};
+use smart_leds::SmartLedsWrite;
 use smart_leds::{brightness, gamma, RGB8};
-use smart_leds_trait::SmartLedsWrite;
 use ws2812_esp32_rmt_driver::Ws2812Esp32Rmt;
 
 pub(crate) struct Matrix<'a> {
     ws2812: Ws2812Esp32Rmt<'a>,
-    //tx: TxRmtDriver<'a>,
     f: Fire<'a, RGB8>,
     pix: Vec<RGB8>,
     brightness: u8,
@@ -29,16 +28,18 @@ impl<'a> Matrix<'a> {
         let black = RGB8 { r: 0, g: 0, b: 0 };
         let pix_bottom: Vec<RGB8> = (0..(1280)).map(|_| black).collect();
 
+        println!("Start matrix with tx in some pin");
         Matrix {
             ws2812,
             f,
             pix: pix_bottom,
-            brightness: 90,
+            brightness: 50,
             delta_brightness: 0,
             brightness_change: 1,
         }
     }
     pub(crate) fn tick(&mut self) {
+        println!("tick");
         self.f.update_fire_intensity();
 
         for p in self.f.into_iter() {

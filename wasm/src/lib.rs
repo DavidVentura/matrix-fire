@@ -2,6 +2,7 @@
 extern crate lazy_static;
 
 use render::{rand, Fire, PALETTE};
+use rgb::RGB8;
 use std::sync::Mutex;
 
 use wasm_bindgen::prelude::*;
@@ -11,7 +12,7 @@ const W: u32 = 20;
 const H: u32 = 16;
 
 lazy_static! {
-    static ref FIRE: Mutex<Fire<'static>> =
+    static ref FIRE: Mutex<Fire<'static, RGB8>> =
         Mutex::new(Fire::new(W as u8, H as u8, 2.6, rand, &PALETTE));
 }
 

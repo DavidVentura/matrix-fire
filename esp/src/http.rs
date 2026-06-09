@@ -24,7 +24,9 @@ pub(crate) fn server(tx: Sender<Commands>) -> Result<EspHttpServer<'static>, Esp
         req.read(&mut buf)?;
         let mut resp = req.into_ok_response()?;
 
-        let str_repr = std::str::from_utf8(&buf)?.trim_end_matches(char::from(0));
+        let str_repr = std::str::from_utf8(&buf)
+            .unwrap()
+            .trim_end_matches(char::from(0));
         match serde_json::from_str::<Settings>(str_repr) {
             Ok(s) => {
                 resp.write("".as_bytes())?;
@@ -34,7 +36,7 @@ pub(crate) fn server(tx: Sender<Commands>) -> Result<EspHttpServer<'static>, Esp
                 resp.write(format!("{:?}", e).as_bytes())?;
             }
         };
-        Ok(())
+        Ok::<(), EspIOError>(())
     })?;
 
     Ok(httpserver)

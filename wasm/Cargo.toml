@@ -14,3 +14,4 @@ web-sys = { version = "0.3.68", features = ["Document", "Element", "HtmlElement"
 [dependencies]
 lazy_static = "1.4.0"
 render = { version = "0.1.0", path = "../render" }
+rgb = "0.8.37"

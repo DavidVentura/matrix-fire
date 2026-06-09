@@ -17,20 +17,23 @@ rust-version = "1.71"
 #embassy = ["esp-idf-svc/embassy-sync", "esp-idf-svc/critical-section", "esp-idf-svc/embassy-time-driver"]
 
 [target.'cfg(target_vendor = "espressif")'.dependencies]
-esp-idf-hal = "0.42"
+esp-idf-hal = "*"
 esp-idf-sys = ">=0.33"
 smart-leds = "0.4.0"
 smart-leds-trait = "0.2.0"
 esp-idf-svc = "*"
-ws2812-esp32-rmt-driver = { version = "0.7.1", features = ["smart-leds-trait", "embedded-graphics-core"] }
+#esp-idf-hal = { path = "../../esp-idf-hal"}
+#esp-idf-svc = { path = "../../esp-idf-svc"}
+ws2812-esp32-rmt-driver = { version = "0.9.0", features = ["smart-leds-trait", "embedded-graphics-core"] }
 #ws2812-esp32-rmt-driver = { path = "../../ws2812-esp32-rmt-driver"}
 
 [build-dependencies]
-embuild = "0.31.3"
+embuild = "0.32.0"
 
 [dependencies]
 embedded-svc = "0.27.1"
 esp_idf_logger = "0.1.1"
+heapless = "0.8.0"
 log = "0.4.20"
 num-traits = "0.2.18"
 render = { version = "0.1.0", path = "../render" }
